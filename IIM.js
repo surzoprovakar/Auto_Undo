@@ -1,8 +1,11 @@
 var Counter = require('./counter')
 const fs = require('fs')
-//const { execSync, exec, spawn } = require('child_process');
+const { execSync, exec, spawn } = require('child_process');
+const util = require("util")
+const execProm = util.promisify(exec)
+
 //const child_process = require('child_process')
-const exec = require('util').promisify(require('child_process').exec)
+//const exec = require('util').promisify(require('child_process').exec)
 
 var is_undoing = false
 var operations_history = []
@@ -34,19 +37,54 @@ function WriteinProlog() {
         fs.mkdirSync("DBs", { recursive: true })
     }
     const writeStream = fs.createWriteStream(fileName)
-    writeStream.write(":-include('../rules.pl').\n")
-    operations_history.forEach(delta => writeStream.write("update(pn, " + delta[1] + ").\n"))
-    writeStream.write("undo :- should_undo(pn)-> writeln('1'); writeln('0'), halt.\n")
-    writeStream.write(":- initialization undo, halt.")
+    //writeStream.once('open', (fd) => {
+        writeStream.write(":-include('../rules.pl').\n")
+        operations_history.forEach(delta => writeStream.write("update(pn, " + delta[1] + ").\n"))
+        writeStream.write("undo :- should_undo(pn)-> writeln('1'); writeln('0'), halt.\n")
+        writeStream.write(":- initialization undo, halt.")
+        writeStream.end()
+    //})
+    
 }
-async function check_undo() {
-    WriteinProlog()
+
+function WriteinGregory() {
+    var fileName = "DBs/pn.pl"
+    if (!fs.existsSync("DBs")) {
+        fs.mkdirSync("DBs", { recursive: true })
+    }
+    //const writeStream = fs.createWriteStream(fileName)
+    //writeStream.once('open', (fd) => {
+        let source = ":-include('../rules.pl').\n" 
+        operations_history.forEach(delta => source += "update(pn, " + delta[1] + ").\n")
+        source += "undo :- should_undo(pn)-> writeln('1'); writeln('0'), halt.\n"
+        source += ":- initialization undo, halt."
+
+        fs.writeFileSync(fileName, source)
+        
+    //})
+    
+}
+function check_undo() {
+    
+    WriteinGregory()
     console.log("after write")
+    /*
     var fName = "DBs/pn.pl"
     var query = "swipl -q -s " + fName + " -g undo."
     let ls;
-    let out = await exec(query).catch(e => e)
-    console.log(out.stdout)
+    //let out = exec(query, { encoding: 'utf-8' }) 
+    */
+    var fName = "DBs/pn.pl"
+    var query = "swipl -q -s " + fName + " -g undo."
+    ls = execSync(query, {encoding: "utf8"})
+    console.log(ls)
+    // exec(query, (error, stdout, stderr) => {
+    //     console.log("res is" + stdout)
+    // })
+    //console.log(out.stdout)
+    
+    
+    //console.log(out.stdout)
     //ls = exec(`ls==$(query)`)
     //console.log(ls)
     
