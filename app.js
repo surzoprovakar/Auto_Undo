@@ -1,6 +1,5 @@
 var Counter = require('./counter')
 
-
 let c1 = new Counter("pn")
 c1.inc(1)
 c1.inc(2)
