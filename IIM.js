@@ -15,11 +15,6 @@ function read_json(filename) {
 }
 var metaData = read_json('./metadata.json')
 
-function change_undoing() {
-    if (is_undoing) { is_undoing = false }
-    else { is_undoing = true }
-}
-
 function generateUndoAction(funcName, param) {
     console.log("generatign undo action: " + funcName + ", " + param)
     //consult Prolog config to determine what the undo action for this CRDT func is
@@ -83,11 +78,16 @@ function execute_undo(c) {
     }
 }
 
+var undo_script = function (funcs) {
+    is_undoing = true
+    funcs.forEach(f => f())
+    is_undoing = false
+}
 
 module.exports = {
     generate_patched,
     execute_patch,
-    change_undoing,
+    undo_script,
     check_undo,
     execute_undo,
     operations_history

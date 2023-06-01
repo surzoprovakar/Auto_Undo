@@ -1,5 +1,5 @@
 var Counter = require('./counter')
-const { generate_patched, execute_patch, change_undoing, check_undo, execute_undo, operations_history } = require('./IIM')
+const { generate_patched, execute_patch, undo_script, check_undo, execute_undo, operations_history } = require('./IIM')
 
 generate_patched()
 execute_patch()
@@ -10,14 +10,14 @@ c1.dec(1)
 c1.inc(1)
 c1.print()
 
-change_undoing()
-c1.inc(3)
-c1.dec(1)
-c1.inc(1)
-c1.inc(2)
-c1.dec(4)
-c1.inc(2)
-change_undoing()
+undo_script([
+    () => c1.inc(3),
+    () => c1.dec(1),
+    () => c1.inc(1),
+    () => c1.inc(2),
+    () => c1.dec(4),
+    () => c1.inc(2)
+])
 
 console.log("value before checking undo")
 c1.print()
