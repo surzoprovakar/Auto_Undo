@@ -1,4 +1,4 @@
 run:
-	node IIM.js
+	node app.js
 clean:
 	rm -rf DBs

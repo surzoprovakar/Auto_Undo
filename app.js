@@ -1,14 +1,32 @@
 var Counter = require('./counter')
+const { generate_patched, execute_patch, change_undoing, check_undo, execute_undo, operations_history } = require('./IIM')
+
+generate_patched()
+execute_patch()
 
 let c1 = new Counter("pn")
 c1.inc(1)
-c1.inc(2)
-start_undo_record("undo1")
-c1.inc(3)
-c1.inc(4)
+c1.dec(1)
+c1.inc(1)
 c1.print()
 
-c1.dec(5)
-c1.dec(2)
-check_and_undo("undo1")
+change_undoing()
+c1.inc(3)
+c1.dec(1)
+c1.inc(1)
+c1.inc(2)
+c1.dec(4)
+c1.inc(2)
+change_undoing()
+
+console.log("value before checking undo")
+c1.print()
+//console.log(operations_history)
+
+if (check_undo() == true) {
+    //console.log("yes")
+    execute_undo(c1)
+}
+
+console.log("value after checking undo")
 c1.print()
