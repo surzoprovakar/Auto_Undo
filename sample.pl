@@ -1,10 +1,10 @@
 :- use_module(library(pita)).
 
-:- if(current_predicate(use_rendering/1)).
-:- use_rendering(c3).
-:- use_rendering(graphviz).
-:- use_rendering(table,[header(['Multivalued variable index','Rule index','Grounding substitution'])]).
-:- endif.
+# :- if(current_predicate(use_rendering/1)).
+# :- use_rendering(c3).
+# :- use_rendering(graphviz).
+# :- use_rendering(table,[header(['Multivalued variable index','Rule index','Grounding substitution'])]).
+# :- endif.
 
 :- pita.
 

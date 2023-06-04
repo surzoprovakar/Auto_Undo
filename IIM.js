@@ -3,7 +3,7 @@
 
 var Counter = require('./counter')
 const fs = require('fs')
-const { execSync } = require('child_process');
+const { execSync } = require('child_process')
 
 var is_undoing = false
 var operations_history = []
