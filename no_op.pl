@@ -1,0 +1,1 @@
+is_no_op(X,Y) :- X=:=Y -> write('1'); write('0').

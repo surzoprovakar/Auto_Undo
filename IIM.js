@@ -1,3 +1,6 @@
+// https://github.com/peer-base/js-delta-crdts
+// https://github.com/orbitdb/crdts
+
 var Counter = require('./counter')
 const fs = require('fs')
 const { execSync } = require('child_process');
@@ -16,9 +19,13 @@ function read_json(filename) {
 var metaData = read_json('./metadata.json')
 
 function generateUndoAction(funcName, param) {
-    console.log("generatign undo action: " + funcName + ", " + param)
-    //consult Prolog config to determine what the undo action for this CRDT func is
-    operations_history.push([rev_map.get(funcName), param])
+    if (!is_no_op(0, (0 + param))) {
+        console.log("generatign undo action: " + funcName + ", " + param + "\n")
+        //consult Prolog config to determine what the undo action for this CRDT func is
+        operations_history.push([rev_map.get(funcName), param])
+    } else {
+        console.log("\n")
+    }
 }
 
 function WriteinGregory() {
@@ -44,6 +51,17 @@ function check_undo() {
     return false
 }
 
+function is_no_op(prev_val, cur_val) {
+    var fName = "no_op.pl"
+    var query = "swipl -q -s " + fName + " -g \"is_no_op(" + prev_val + "," + cur_val + "), halt\"."
+    var ls = execSync(query, { encoding: "utf8" })
+    console.log("Res from Is-No-Op " + ls)
+    if (ls[0] == '1') { return true }
+    return false
+}
+
+// var s = is_no_op(1,1)
+// console.log(s)
 
 var funcs = []
 function generate_patched() {
