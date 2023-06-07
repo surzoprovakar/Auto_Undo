@@ -11,16 +11,17 @@
 
 :- begin_lpad.
 
-undo_triggered(CRDT): 1/2; not_triggered(CRDT) : 1/2:-undo_check(CRDT),\+error_prone(CRDT).
+should_undo(crdt): 0.5; not_undo(crdt) : 0.5:-undo_check(crdt),error_updates(crdt).
 
-undo_triggered(CRDT): 0.6 ; not_triggered(CRDT) : 0.4:-undo_check(CRDT),error_prone(CRDT).
+should_undo(crdt): 0.6 ; not_undo(crdt) : 0.4:-undo_check(crdt),math_model_undo(crdt).
 
-fair(CRDT):0.9 ; error_prone(CRDT):0.1.
+error_updates(crdt):0.2.
+math_model_undo(crdt):0.5.
 
 undo_check(crdt).
 
 
 :- end_lpad.
 
-%- prob(undo_triggered(crdt),Prob).  % what is the probability that CRDT lands undo_triggered?
+%- prob(should_undo(crdt),Prob).  % what is the probability that crdt lands should_undo?
 % expected result 0.51

@@ -25,7 +25,7 @@ c1.print()
 //console.log(operations_history)
 
 if (check_undo() == true) {
-    //console.log("yes")
+    console.log("undo required")
     execute_undo(c1)
 }
 

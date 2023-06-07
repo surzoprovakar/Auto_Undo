@@ -1,16 +1,20 @@
 const fs = require('fs')
 const { execSync } = require('child_process')
 
-var updates_num = 100
-var undo_nums = 40
-var error_updates = 20
+var total_updates
+var error_updates
+var math_undos
 
-var undo = "undo_triggered(crdt)"
-var not_undo = "not_triggered(crdt)"
+
+// cplint dialects
+var undo = "should_undo(crdt)"
+var not_undo = "not_undo(crdt)"
 var event = "undo_check(crdt)"
-var cond_event = "error_prone(crdt)"
-var not_cond_event = "not_error_prone(crdt)"
-var query = "\"prob(undo_triggered(crdt),Prob),write(Prob),halt.\""
+var error_event = "error_updates(crdt)"
+var math_event = "math_model_undo(crdt)"
+
+
+var query = "\"prob(should_undo(crdt),Prob),write(Prob),halt.\""
 
 let start_lib = ":- use_module(library(pita)).\n\:- pita.\n\:- begin_lpad.\n\n"
 
@@ -18,12 +22,12 @@ let end_lib = "\nundo_check(crdt).\n\:- end_lpad."
 
 var fileName = "prob_model.pl"
 
-function calc_undo_trigger() {
-    return undo_nums / updates_num
+function calc_error_event() {
+    return error_updates / total_updates
 }
 
-function calc_conditional() {
-    return error_updates / updates_num
+function calc_math_event() {
+    return math_undos / total_updates
 }
 
 function write_in_model() {
