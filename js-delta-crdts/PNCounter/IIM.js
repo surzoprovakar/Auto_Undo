@@ -10,19 +10,19 @@ var operations_history = []
 var funcs = []
 var numbers = []
 
-function read_functions(filename) {
-    var file = require(filename)
-    return file.functions
-}
-
 function read_crdts(filename) {
     var file = require(filename)
     return file.crdts.filter((element) => element.crdt === "counter")
 }
 
-var functions = read_functions('../MetaData/metaData.json')
+function read_functions(crdt) {
+    return crdt[0].functions
+}
+
 var crdts = read_crdts('../MetaData/metaData.json')
+var functions = read_functions(crdts)
 // console.log(crdts)
+// console.log(functions)
 
 function generateUndoAction(funcName, param, undo_func) {
     if (param != null) {

@@ -1,11 +1,23 @@
 {
-    "functions": [
-        {"name":"inc", "rg":"dec", "param":"val"},  
-        {"name":"dec", "rg":"inc","param":"val"}
-    ],
     "crdts": [
-        {"crdt":"counter", "stat":"mean", "max":"3"},
-        {"crdt":"set", "stat":"std", "max":"2", "lt_size":"100"},
-        {"crdt":"graph", "stat":"dup_edge", "lt_v_size":"50"}
+        {"crdt":"counter", "functions":[
+            {"name":"inc", "rg":"dec", "param":"val"},  
+            {"name":"dec", "rg":"inc","param":"val"}
+            ], 
+        "stat":"mean", "max":"3"},
+
+        {"crdt":"set", "functions":[
+            {"name":"add", "rg":"remove", "param":"val"},  
+            {"name":"remove", "rg":"add","param":"val"}
+            ], 
+        "stat":"std", "max":"2", "lt_size":"100"},
+
+        {"crdt":"graph", "functions":[
+            {"name":"add_v", "rg":"remove_v", "param":"val"},  
+            {"name":"remove_v", "rg":"add_v","param":"val"},
+            {"name":"add_e", "rg":"remove_e", "param1":"val", "param2":"val"},  
+            {"name":"remove_e", "rg":"add_e","param":"val", "param2":"val"}
+            ], 
+        "stat":"dup_edge", "lt_v_size":"50"}
     ]
 }
