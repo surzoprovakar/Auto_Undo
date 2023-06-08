@@ -1,6 +1,6 @@
 const fs = require('fs')
 const { execSync } = require('child_process')
-
+const { custom_undo_check } = require('./app')
 CRDT = require('delta-crdts')
 PN = CRDT('pncounter')
 pn = PN("rg")
@@ -58,15 +58,19 @@ function execute_patch() {
     })
 }
 
-var undoable = function (funcs) {
+var undoable = function (funcs, custom_undo_check) {
     is_undoing = true
     funcs.forEach(f => {
         f()
         numbers.push(pn.value())
     })
     is_undoing = false
-    // console.log(operations_history)
-    // console.log(numbers)
+    if (custom_undo_check) {
+        execute_undo(pn)
+    } else {
+        if (undo_check()) { execute_undo(pn) }
+        else { console.log("undo_not required") }
+    }
 }
 
 function undo_check() {
@@ -77,25 +81,20 @@ function undo_check() {
     const res = parseFloat(output.toString().trim())
     // console.log(res)
 
-    if (res > threshold) { return true }
-    return false
+    return res > threshold ? true : false
 }
 
 function execute_undo(c) {
-    if (undo_check()) {
-        console.log("undo required")
-        while (operations_history.length > 0) {
-            const [opName, revVal] = operations_history.pop()
-            if (revVal != null) {
-                if (opName == 'inc') { c.inc(revVal) }
-                else { c.dec(revVal) }
-            } else {
-                if (opName == 'inc') { c.inc() }
-                else { c.dec() }
-            }
+    console.log("undo is actuating")
+    while (operations_history.length > 0) {
+        const [opName, revVal] = operations_history.pop()
+        if (revVal != null) {
+            if (opName == 'inc') { c.inc(revVal) }
+            else { c.dec(revVal) }
+        } else {
+            if (opName == 'inc') { c.inc() }
+            else { c.dec() }
         }
-    } else {
-        console.log("undo_not required")
     }
 }
 
@@ -103,6 +102,4 @@ module.exports = {
     generate_patched,
     execute_patch,
     undoable,
-    undo_check,
-    execute_undo
 }
