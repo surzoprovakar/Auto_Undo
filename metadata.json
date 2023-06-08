@@ -1,6 +1,11 @@
 {
     "functions": [  
-    {"name":"inc", "param":"val"},  
-    {"name":"dec", "param":"val"}
+        {"name":"inc", "rg":"dec", "param":"val"},  
+        {"name":"dec", "rg":"inc","param":"val"}
+    ],
+    "crdts": [
+        {"crdt":"counter", "stat":"mean", "max":"3"},
+        {"crdt":"set", "stat":"std", "max":"2", "lt_size":"100"},
+        {"crdt":"graph", "stat":"dup_edge", "lt_v_size":"50"}
     ]
 }
