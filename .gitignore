@@ -1,0 +1,8 @@
+*
+!/**/
+!*.*
+
+
+!Makefile
+*.zip
+js-delta-crdts/node_modules/

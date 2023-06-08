@@ -20,7 +20,7 @@ var metaData = read_json('./metadata.json')
 
 function generateUndoAction(funcName, param) {
     if (!is_no_op(0, (0 + param))) {
-        console.log("generatign undo action: " + funcName + ", " + param + "\n")
+        console.log("generating undo action: " + funcName + ", " + param + "\n")
         //consult Prolog config to determine what the undo action for this CRDT func is
         operations_history.push([rev_map.get(funcName), param])
     } else {
