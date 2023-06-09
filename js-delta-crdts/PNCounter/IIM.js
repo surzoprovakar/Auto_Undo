@@ -6,6 +6,8 @@ PN = CRDT('pncounter')
 pn = PN("rg")
 
 var is_undoing = false
+var prev_val
+var after_val
 var operations_history = []
 var funcs = []
 var numbers = []
@@ -21,10 +23,15 @@ function read_functions(crdt) {
 
 var crdts = read_crdts('../MetaData/metaData.json')
 var functions = read_functions(crdts)
+var no_op = crdts[0].no_op
 // console.log(crdts)
 // console.log(functions)
 
 function generateUndoAction(funcName, param, undo_func) {
+    if (Math.abs(prev_val - after_val) == 0) {
+        console.log("No Op detected")
+        return
+    }
     if (param != null) {
         console.log("generating undo action for: " + funcName + ", " + param + "\n")
         operations_history.push([undo_func, param])
@@ -42,10 +49,11 @@ function generate_patched() {
         var patchedFunc = "var origfunc = pn." + funcName + "\n\
         pn." + funcName + " = function (" + funcParam + ") {\n\
         console.log(\"calling proxied " + funcName + "\")\n\
+        origfunc.apply(this, [" + funcParam + "])\n\
+        after_val =  pn.value()\n\
         if (is_undoing) {\n\
         generateUndoAction(" + "\"" + funcName + "\"" + ", " + funcParam + "," + "\"" + undoFunc + "\"" + ")\n\
         }\n\
-        origfunc.apply(this, [" + funcParam + "])\n\
         }\n"
         funcs.push(patchedFunc)
     }
@@ -61,16 +69,22 @@ function execute_patch() {
 var undoable = function (funcs, custom_undo_check) {
     is_undoing = true
     funcs.forEach(f => {
+        prev_val = eval("pn."+no_op+"()")
         f()
         numbers.push(pn.value())
     })
     is_undoing = false
     if (custom_undo_check) {
+        console.log("undo is actuating depending on custom logic")
         execute_undo(pn)
     } else {
-        if (undo_check()) { execute_undo(pn) }
+        if (undo_check()) { 
+            console.log("undo is actuating depending on metaData logic")
+            execute_undo(pn) 
+        }
         else { console.log("undo_not required") }
     }
+    numbers.length = 0
 }
 
 function undo_check() {

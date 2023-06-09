@@ -13,7 +13,7 @@ function custom_undo_check() {
     return input == 1 ? true : false
 }
 
-const { generate_patched, execute_patch, undoable, execute_undo } = require('./IIM')
+const { generate_patched, execute_patch, undoable } = require('./IIM')
 
 generate_patched()
 execute_patch()
