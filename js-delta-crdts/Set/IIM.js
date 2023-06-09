@@ -1,20 +1,20 @@
 const fs = require('fs')
 const { execSync } = require('child_process')
-const { custom_undo_check } = require('./app')
+
 CRDT = require('delta-crdts')
-PN = CRDT('pncounter')
-pn = PN("rg")
+set = CRDT('aworset')
+ars = set("s1")
 
 var is_undoing = false
-var prev_val
-var after_val
+var prev_size
+var after_size
 var operations_history = []
 var funcs = []
 var numbers = []
 
 function read_crdts(filename) {
     var file = require(filename)
-    return file.crdts.filter((element) => element.crdt === "counter")
+    return file.crdts.filter((element) => element.crdt === "set")
 }
 
 function read_functions(crdt) {
@@ -26,9 +26,10 @@ var functions = read_functions(crdts)
 var no_op = crdts[0].no_op
 // console.log(crdts)
 // console.log(functions)
+// console.log(no_op)
 
 function generateUndoAction(funcName, param, undo_func) {
-    if (Math.abs(prev_val - after_val) == 0) {
+    if (Math.abs(prev_size - after_size) == 0) {
         console.log("No Op detected")
         return
     }
@@ -46,11 +47,11 @@ function generate_patched() {
         var funcName = func.name
         var funcParam = func.param
         var undoFunc = func.rg
-        var patchedFunc = "var origfunc = pn." + funcName + "\n\
-        pn." + funcName + " = function (" + funcParam + ") {\n\
+        var patchedFunc = "var origfunc = ars." + funcName + "\n\
+        ars." + funcName + " = function (" + funcParam + ") {\n\
         console.log(\"calling proxied " + funcName + "\")\n\
         origfunc.apply(this, [" + funcParam + "])\n\
-        after_val =  pn.value()\n\
+        after_size =  ars.value().size\n\
         if (is_undoing) {\n\
         generateUndoAction(" + "\"" + funcName + "\"" + ", " + funcParam + "," + "\"" + undoFunc + "\"" + ")\n\
         }\n\
@@ -69,18 +70,18 @@ function execute_patch() {
 var undoable = function (funcs, custom_undo_check) {
     is_undoing = true
     funcs.forEach(f => {
-        prev_val = eval("pn."+no_op+"()")
+        prev_size = eval("ars." + no_op)
         f()
-        numbers.push(pn.value())
     })
     is_undoing = false
+    ars.value().forEach(v => numbers.push(v))
     if (custom_undo_check) {
         console.log("undo is actuating depending on custom logic")
-        execute_undo(pn)
+        execute_undo(ars)
     } else {
-        if (undo_check()) { 
+        if (undo_check()) {
             console.log("undo is actuating depending on metaData logic")
-            execute_undo(pn) 
+            execute_undo(ars)
         }
         else { console.log("undo_not required") }
     }
@@ -102,18 +103,15 @@ function undo_check() {
 function execute_undo(c) {
     while (operations_history.length > 0) {
         const [opName, revVal] = operations_history.pop()
-        if (revVal != null) {
-            if (opName == 'inc') { c.inc(revVal) }
-            else { c.dec(revVal) }
-        } else {
-            if (opName == 'inc') { c.inc() }
-            else { c.dec() }
-        }
+
+        if (opName == 'add') { c.add(revVal) }
+        else { c.remove(revVal) }
+
     }
 }
 
 module.exports = {
     generate_patched,
     execute_patch,
-    undoable,
+    undoable
 }

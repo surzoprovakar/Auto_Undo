@@ -10,7 +10,7 @@
             {"name":"add", "rg":"remove", "param":"val"},  
             {"name":"remove", "rg":"add","param":"val"}
             ], 
-        "stat":"std", "max":"2", "lt_size":"100", "no_op": "size"},
+        "stat":"std", "max":"2", "lt_size":"100", "no_op": "value().size"},
 
         {"crdt":"graph", "functions":[
             {"name":"add_v", "rg":"remove_v", "param":"val"},  
