@@ -11,6 +11,9 @@ var after_size
 var operations_history = []
 var funcs = []
 var numbers = []
+var data = []
+var labels = []
+var input_data = []
 
 function read_crdts(filename) {
     var file = require(filename)
@@ -75,17 +78,42 @@ var undoable = function (funcs, custom_undo_check) {
     })
     is_undoing = false
     ars.value().forEach(v => numbers.push(v))
+    // console.log("ars size: " + ars.value().size)
+    // console.log("lt size: " + crdts[0].lt_size)
     if (custom_undo_check) {
         console.log("undo is actuating depending on custom logic")
         execute_undo(ars)
-    } else {
+        data.push(numbers)
+        labels.push("true")
+    } else if (labels.length /*ars.value().size*/ < crdts[0].lt_size) {
         if (undo_check()) {
             console.log("undo is actuating depending on metaData logic")
             execute_undo(ars)
+            data.push(numbers)
+            //console.log("inter "+ data)
+            //console.log("inter2 "+ numbers)
+            labels.push("true")
         }
-        else { console.log("undo_not required") }
+        else {
+            console.log("undo_not required")
+            data.push(numbers)
+            labels.push("false")
+        }
+    } else {
+        input_data = numbers
+        if (prob_undo_check()) {
+            console.log("undo is actuating depending on prob model")
+            execute_undo(ars)
+            data.push(numbers)
+            labels.push("true")
+        } else {
+            console.log("undo_not required")
+            data.push(numbers)
+            labels.push("false")
+        }
+        input_data = []
     }
-    numbers.length = 0
+    numbers = []
     operations_history.length = 0
 }
 
@@ -95,7 +123,7 @@ function undo_check() {
     const command = `python3 ../DM/` + file + ` ${numbers.join(' ')}`
     const output = execSync(command)
     const res = parseFloat(output.toString().trim())
-    // console.log(res)
+    console.log(res)
 
     return res > threshold ? true : false
 }
@@ -115,3 +143,30 @@ module.exports = {
     execute_patch,
     undoable
 }
+
+
+//#region  Probablity Model
+function prob_undo_check() {
+    var file = "LR.py"
+    // console.log(data)
+    // console.log(labels)
+    // console.log(input_data)
+    const dataString = JSON.stringify(data)
+    const labelsString = JSON.stringify(labels)
+    const inputString = JSON.stringify(input_data)
+
+    const command = `python3 ../Probability/LR.py '${dataString}' '${labelsString}' '${inputString}'`;
+    try {
+        // Execute the Python script synchronously
+        const result = execSync(command)
+        console.log(result.toString().trim())
+
+        const res = result.toString().trim().slice(1, -1)
+        // console.log(res.length)
+        console.log(res)
+        return res > 0.6 ? true : false
+    } catch (error) {
+        console.error(error);
+    }
+}
+//#endregion

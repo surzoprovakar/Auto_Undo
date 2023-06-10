@@ -35,4 +35,22 @@ undoable([
     () => ars.remove(5)
 ], custom_undo_check())
 
+
+console.log(ars.value())
+
+undoable([
+    () => ars.add(5)
+])
+
+console.log(ars.value())
+
+undoable([
+    () => ars.add(6),
+    () => ars.add(7),
+    () => ars.remove(1),
+    () => ars.remove(2),
+    () => ars.remove(3),
+    () => ars.remove(5)
+])
+
 console.log(ars.value())
