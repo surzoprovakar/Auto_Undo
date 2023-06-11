@@ -54,3 +54,16 @@ undoable([
 ])
 
 console.log(ars.value())
+
+undoable([
+    () => ars.remove(6),
+    () => ars.remove(8),
+    () => ars.add(1),
+    () => ars.add(2),
+    () => ars.add(3),
+    () => ars.add(5),
+    () => ars.add(4),
+
+])
+
+console.log(ars.value())

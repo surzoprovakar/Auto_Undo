@@ -8,17 +8,21 @@ model = LogisticRegression()
 
 def prob_val_lr(data, labels, input_data):
 
-    # Pre process data
     max_len = max(len(sublist) for sublist in data)
-    if max_len < len(input_data):
-        max_len = len(input_data)
+    if max_len < len(input_data[0]):
+        max_len = len(input_data[0])
 
+    # print("max len ", max_len)
     padded_data = np.zeros((len(data), max_len), dtype=int)
     padded_input = np.zeros(max_len, dtype=int)
-    padded_input[:len(input_data.flatten())] = input_data.flatten()
+    # padded_input[:len(input_data.flatten())] = input_data.flatten()
 
     for i, sublist in enumerate(data):
         padded_data[i, :len(sublist)] = sublist
+    # print(padded_data)
+
+    padded_input[:len(input_data[0].flatten())] = input_data[0].flatten()
+    # print(padded_input)
 
     # fit the model to the training data
     model.fit(padded_data, labels)
@@ -29,6 +33,7 @@ def prob_val_lr(data, labels, input_data):
     probability_true = probabilities[0][model.classes_ == 'true']
 
     return probability_true
+
 
     # print(f"The probability of the input {input_data} being classified as 'true' in LR is: {probability_true}")
 

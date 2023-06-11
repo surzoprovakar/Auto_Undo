@@ -85,7 +85,7 @@ var undoable = function (funcs, custom_undo_check) {
         execute_undo(ars)
         data.push(numbers)
         labels.push("true")
-    } else if (labels.length /*ars.value().size*/ < crdts[0].lt_size) {
+    } else if (ars.value().size < crdts[0].lt_size) {
         if (undo_check()) {
             console.log("undo is actuating depending on metaData logic")
             execute_undo(ars)
@@ -164,7 +164,7 @@ function prob_undo_check() {
         const res = result.toString().trim().slice(1, -1)
         // console.log(res.length)
         console.log(res)
-        return res > 0.6 ? true : false
+        return res > 0.5 ? true : false
     } catch (error) {
         console.error(error);
     }

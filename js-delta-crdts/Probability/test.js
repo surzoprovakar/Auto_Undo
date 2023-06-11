@@ -1,11 +1,11 @@
 const { execSync } = require('child_process');
 
 // const data = [[1, 2, 3], [6, 2, 8, 11], [10, 2, -4], [11, 22, 30, 25, 65], [0, 5, 7]];
-const data = [[4,1], [1,2,5]];
+const data = [[4,1], [1,2,5], [11,12,13,14,15,16]];
 // const labels = ['true', 'false', 'true', 'false', 'true'];
-const labels = ['true', 'false'];
+const labels = ['true', 'false', 'false'];
 // const input_data = [3, 1, 8];
-const input_data = [6.7];
+const input_data = [3,1,8,4,7];
 
 const dataString = JSON.stringify(data);
 const labelsString = JSON.stringify(labels);
@@ -18,8 +18,8 @@ try {
     console.log(result.toString().trim());
 
     const res = result.toString().trim()
-    // console.log(res.length)
-    console.log(parseFloat(res.slice(1, -1)));
+    console.log("before parse " + res)
+    console.log("res " + parseFloat(res.slice(1, -1)));
 } catch (error) {
     console.error(error);
 }
