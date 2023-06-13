@@ -13,10 +13,10 @@
         "stat":"std", "max":"2", "lt_size":"5", "no_op": "value().size"},
 
         {"crdt":"map", "functions":[
-            {"name":"add_key", "rg":"remove_key", "param":"key"},  
-            {"name":"modify_key", "rg":"modify_key","param1":"key", "param2":"val"},
-            {"name":"remove_key", "rg":"add_key", "param1":"key", "param2":"val"}
+            {"name":"set", "rg":"delete", "param1":"key", "cond":"false"},  
+            {"name":"set", "rg":"set", "param1":"key", "param2":"p_val", "cond":"true"},
+            {"name":"delete", "rg":"set","param1":"key", "param2":"p_val"}
             ], 
-        "stat":"std", "max":"2", "lt_v_size":"50", "no_op":"no_op"}
+        "stat":"std", "max":"2", "lt_v_size":"50", "no_op":"size|key_value", "cond":"has(key)"}
     ]
 }
