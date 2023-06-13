@@ -12,12 +12,11 @@
             ], 
         "stat":"std", "max":"2", "lt_size":"5", "no_op": "value().size"},
 
-        {"crdt":"graph", "functions":[
-            {"name":"add_v", "rg":"remove_v", "param":"val"},  
-            {"name":"remove_v", "rg":"add_v","param":"val"},
-            {"name":"add_e", "rg":"remove_e", "param1":"val", "param2":"val"},  
-            {"name":"remove_e", "rg":"add_e","param1":"val", "param2":"val"}
+        {"crdt":"map", "functions":[
+            {"name":"add_key", "rg":"remove_key", "param":"key"},  
+            {"name":"modify_key", "rg":"modify_key","param1":"key", "param2":"val"},
+            {"name":"remove_key", "rg":"add_key", "param1":"key", "param2":"val"}
             ], 
-        "stat":"dup_edge", "lt_v_size":"50"}
+        "stat":"std", "max":"2", "lt_v_size":"50", "no_op":"no_op"}
     ]
 }
