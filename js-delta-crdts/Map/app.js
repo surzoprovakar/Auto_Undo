@@ -29,7 +29,11 @@ undoable([
     () => ms.set('a', 5),
     () => ms.delete('b'),
     () => ms.delete('d'),
-    () => ms.set('a', 5)
+    () => ms.set('a', 5),
+    () => ms.set('d', 4),
+    () => ms.set('x', 8),
+    () => ms.set('y', 12),
+    () => ms.set('d', 7)
 ], custom_undo_check())
 
 console.log(ms.entries())

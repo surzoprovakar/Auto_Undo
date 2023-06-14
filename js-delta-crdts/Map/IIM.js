@@ -118,20 +118,50 @@ var undoable = function (Funcs, custom_undo_check) {
         f()
     })
     is_undoing = false
+    numbers = Array.from(ms.values())
+    // console.log("numbers: " + numbers)
+    // console.log("ms size: " + ms.size)
+    // console.log("lt size: " + crdts[0].lt_v_size)
     if (custom_undo_check) {
+        console.log("undo is actuating depending on custom logic")
         execute_undo(ms)
+        data.push(numbers)
+        labels.push("true")
+    } else if (ms.size < crdts[0].lt_v_size) {
+        if (undo_check()) {
+            console.log("undo is actuating depending on metaData logic")
+            execute_undo(ms)
+            data.push(numbers)
+            //console.log("inter "+ data)
+            //console.log("inter2 "+ numbers)
+            labels.push("true")
+        }
+        else {
+            console.log("undo_not required")
+            data.push(numbers)
+            labels.push("false")
+        }
     }
 }
 
+function undo_check() {
+    var file = crdts[0].stat + ".py"
+    var threshold = crdts[0].max
+    // console.log("threshold "+ threshold)
+    const command = `python3 ../DM/` + file + ` ${numbers.join(' ')}`
+    const output = execSync(command)
+    const res = parseFloat(output.toString().trim())
+    console.log(res)
+
+    return res > threshold ? true : false
+}
+
 function execute_undo(ms) {
-    console.log("undo actuating")
     // console.log(operations_history)
     while (operations_history.length > 0) {
         const [opName, key, val] = operations_history.pop()
-
         if (opName == 'delete') { ms.delete(key) }
         else { ms.set(key, val) }
-
     }
 }
 
