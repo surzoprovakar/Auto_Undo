@@ -6,9 +6,14 @@ map = CRDT('ormap')
 orm = map('m1')
 ms = orm.state().state
 
+var is_undoing = false
 var no_op
 var operations_history = []
 var funcs = []
+var numbers = []
+var data = []
+var labels = []
+var input_data = []
 
 function read_crdts(filename) {
     var file = require(filename)
@@ -57,14 +62,18 @@ function generate_patched() {
                     var param2 = ms.get(key)\n\
                     if (ms.get(key) == val) { no_op = true }\n\
                     else { no_op = false }\n\
+                    if (is_undoing) {\n\
                     generateUndoAction(" + "\"" + func + "\"" + ", param1, param2, undoFunc, no_op)\n\
+                    }\n\
                     origSet.apply(this, [key, val])\n\
                 } else {\n\
                     var meta = functions.find((fn) =>  fn.cond === 'false')\n\
                     var undoFunc = meta.rg\n\
                     var param = key\n\
                     no_op = false\n\
+                    if (is_undoing) {\n\
                     generateUndoAction(" + "\"" + func + "\"" + ", param, null, undoFunc, no_op)\n\
+                    }\n\
                     origSet.apply(this, [key, val])\n\
                 }\n\
             }\n"
@@ -85,7 +94,9 @@ function generate_patched() {
                     no_op = true\n\
                     console.log(\"key not in there\")\n\
                 }\n\
+                if (is_undoing) {\n\
                 generateUndoAction(" + "\"" + func + "\"" + ", param1, param2, undoFunc, no_op)\n\
+                }\n\
             }\n"
             funcs.push(patchedFunc)
         }
@@ -101,7 +112,20 @@ function execute_patch() {
     })
 }
 
+var undoable = function (Funcs, custom_undo_check) {
+    is_undoing = true
+    Funcs.forEach(f => {
+        f()
+    })
+    is_undoing = false
+    if (custom_undo_check) {
+        execute_undo(ms)
+    }
+}
+
 function execute_undo(ms) {
+    console.log("undo actuating")
+    // console.log(operations_history)
     while (operations_history.length > 0) {
         const [opName, key, val] = operations_history.pop()
 
@@ -114,7 +138,7 @@ function execute_undo(ms) {
 module.exports = {
     generate_patched,
     execute_patch,
-    operations_history
+    undoable
 }
 
 function is_no_op(map1, map2) {
