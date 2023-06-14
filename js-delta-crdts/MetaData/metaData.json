@@ -13,7 +13,7 @@
         "stat":"std", "max":"2", "lt_size":"5", "no_op": "value().size"},
 
         {"crdt":"map", "functions":[
-            {"name":"set", "rg":"delete", "param1":"key", "cond":"false"},  
+            {"name":"set", "rg":"delete", "param":"key", "cond":"false"},  
             {"name":"set", "rg":"set", "param1":"key", "param2":"p_val", "cond":"true"},
             {"name":"delete", "rg":"set","param1":"key", "param2":"p_val"}
             ], 
