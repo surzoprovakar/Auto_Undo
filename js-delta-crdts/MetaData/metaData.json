@@ -17,6 +17,6 @@
             {"name":"set", "rg":"set", "param1":"key", "param2":"p_val", "cond":"true"},
             {"name":"delete", "rg":"set","param1":"key", "param2":"p_val"}
             ], 
-        "stat":"std", "max":"2", "lt_v_size":"50", "no_op":"size|key_value", "cond":"has(key)"}
+        "stat":"std", "max":"2", "lt_v_size":"15", "no_op":"size|key_value", "cond":"has(key)"}
     ]
 }
