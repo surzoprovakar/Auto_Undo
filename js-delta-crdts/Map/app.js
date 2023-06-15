@@ -26,6 +26,26 @@ ms.set('c', 3)
 console.log(ms.entries())
 
 undoable([
+    () => ms.set('rg', 100),
+    () => ms.set('rga', 500)
+], custom_undo_check())
+console.log(ms.entries())
+
+
+undoable([
+    () => ms.set('p', 5),
+    () => ms.delete('q'),
+    () => ms.delete('r'),
+    () => ms.set('s', 5),
+    () => ms.set('t', 4)
+])
+console.log(ms.entries())
+
+ms.set('m', 11)
+ms.set('n', 12)
+console.log(ms.entries())
+
+undoable([
     () => ms.set('a', 5),
     () => ms.delete('b'),
     () => ms.delete('d'),
@@ -34,6 +54,29 @@ undoable([
     () => ms.set('x', 8),
     () => ms.set('y', 12),
     () => ms.set('d', 7)
-], custom_undo_check())
+])
+console.log(ms.entries())
 
+ms.delete('m')
+ms.delete('n')
+ms.delete('p')
+ms.delete('s')
+ms.delete('t')
+console.log(ms.entries())
+
+undoable([
+    () => ms.set('@', 5),
+    () => ms.set('#', 5),
+    () => ms.set('%', 5),
+    () => ms.set('^', 5),
+    () => ms.set('&', 5),
+    () => ms.set('!', 5),
+    () => ms.set('~', 5),
+    () => ms.set('(', 5),
+    () => ms.set(')', 5),
+    () => ms.set('*', 5),
+    () => ms.set('/', 5),
+    () => ms.set('|', 5),
+    () => ms.set('||', 5)
+])
 console.log(ms.entries())

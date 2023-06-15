@@ -141,7 +141,22 @@ var undoable = function (Funcs, custom_undo_check) {
             data.push(numbers)
             labels.push("false")
         }
+    } else {
+        input_data = numbers
+        if (prob_undo_check()) {
+            console.log("undo is actuating depending on prob model")
+            execute_undo(ms)
+            data.push(numbers)
+            labels.push("true")
+        } else {
+            console.log("undo_not required")
+            data.push(numbers)
+            labels.push("false")
+        }
+        input_data = []
     }
+    numbers = []
+    operations_history.length = 0
 }
 
 function undo_check() {
@@ -170,6 +185,32 @@ module.exports = {
     execute_patch,
     undoable
 }
+
+//#region  Probablity Model
+function prob_undo_check() {
+    var file = "LR.py"
+    console.log(data)
+    console.log(labels)
+    console.log(input_data)
+    const dataString = JSON.stringify(data)
+    const labelsString = JSON.stringify(labels)
+    const inputString = JSON.stringify(input_data)
+
+    const command = `python3 ../Probability/LR.py '${dataString}' '${labelsString}' '${inputString}'`;
+    try {
+        // Execute the Python script synchronously
+        const result = execSync(command)
+        console.log(result.toString().trim())
+
+        const res = result.toString().trim().slice(1, -1)
+        // console.log(res.length)
+        console.log(res)
+        return res > 0.3 ? true : false
+    } catch (error) {
+        console.error(error);
+    }
+}
+//#endregion
 
 function is_no_op(map1, map2) {
     if (map1.size !== map2.size) { return true }
