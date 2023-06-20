@@ -10,6 +10,6 @@
             {"name":"add", "rg":"remove", "param":"val"},  
             {"name":"remove", "rg":"add","param":"val"}
             ], 
-        "stat":"std", "max":"2", "lt_size":"5", "no_op": "value().size"}
+        "stat":"std", "max":"2", "lt_size":"5", "no_op": "values().size"}
     ]
 }

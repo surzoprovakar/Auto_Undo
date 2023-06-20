@@ -3,7 +3,6 @@ import { execSync } from 'child_process'
 import { custom_undo_check } from './app.js'
 
 import { PNCounter } from 'crdts'
-var pn = new PNCounter("pnc")
 
 
 var is_undoing = false

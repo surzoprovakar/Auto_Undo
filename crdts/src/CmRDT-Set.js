@@ -36,7 +36,7 @@ export default class CmRDTSet extends Set {
    * @param  {[Iterable]} iterable [Opetional Iterable object (eg. Array, Set) to create the Set from]
    * @param  {[Object]}   options  [Options to pass to the Set. Currently supported: `{ compareFunc: (a, b) => true|false }`]
    */
-  constructor (iterable, options) {
+  constructor(iterable, options) {
     super()
     // Internal cache for tracking which values have been added to the set
     this._values = new Set()
@@ -55,8 +55,8 @@ export default class CmRDTSet extends Set {
    * @override
    * @return {[Set]} [Values in this set]
    */
-  values () {
-    const shouldIncludeValue = e => this._resolveValueState(e.added, e.removed, this._options.compareFunc)
+  values() {
+    /*const shouldIncludeValue = e => this._resolveValueState(e.added, e.removed, this._options.compareFunc)
     const getValue = e => e.value
     // Filter out values that should not be in this set
     // by using the _resolveValueState() function to determine
@@ -65,6 +65,8 @@ export default class CmRDTSet extends Set {
       .filter(shouldIncludeValue)
       .map(getValue)
     return new Set(state).values()
+    */
+   return this._values
   }
 
   /**
@@ -72,7 +74,7 @@ export default class CmRDTSet extends Set {
    * @param  {[Any]}  value [Value to look for]
    * @return {Boolean}      [True if value is in the Set, false if not]
    */
-  has (value) {
+  has(value) {
     return new Set(this.values()).has(value)
   }
 
@@ -81,9 +83,9 @@ export default class CmRDTSet extends Set {
    * @param  {[Array]}  values [Values that should be in the Set]
    * @return {Boolean}         [True if all values are in the Set, false if not]
    */
-  hasAll (values) {
+  hasAll(values) {
     const contains = e => this.has(e)
-    return values.every(contains) 
+    return values.every(contains)
   }
 
   /**
@@ -98,7 +100,13 @@ export default class CmRDTSet extends Set {
    * @param {[Any]} value [Value to add to the Set]
    * @param {[Any]} tag   [Optional tag for this add operation, eg. a clock]
    */
-  add (value, tag) {
+  add(value, tag) {
+
+    if (!this._values.has(value)) {
+      this._values.add(value)
+    }
+
+    /*
     // If the value is not in the set yet
     if (!this._values.has(value)) {
       // Create an operation for the value and apply it to this set
@@ -108,6 +116,7 @@ export default class CmRDTSet extends Set {
       // If the value is in the set, add a tag to its added set
       this._findOperationsFor(value).map(val => val.added.add(tag))
     }
+    */
   }
 
   /**
@@ -122,10 +131,17 @@ export default class CmRDTSet extends Set {
    * @param  {[Any]} value [Value to remove from the Set]
    * @param  {[Any]} tag   [Optional tag for this remove operation, eg. a clock]
    */
-  remove (value, tag) {
+  remove(value, tag) {
+
+    if (this._values.has(value)) {
+      this._values.delete(value)
+    }
+
+    /*
     // Add a remove tag to the value's removed set, and only
     // apply the remove operation if the value was added previously
     this._findOperationsFor(value).map(e => e.removed.add(tag))
+    */
   }
 
   /**
@@ -133,7 +149,7 @@ export default class CmRDTSet extends Set {
    * @override
    * @param  {[CRDTSet]} other [Set to merge with]
    */
-  merge (other) {
+  merge(other) {
     other._operations.forEach(operation => {
       const value = operation.value
       if (!this._values.has(value)) {
@@ -155,13 +171,13 @@ export default class CmRDTSet extends Set {
    * CmRDT-Set as an Object that can be JSON.stringified
    * @return {[Object]} [Object in the shape of `{ values: [ { value: <value>, added: [<tags>], removed: [<tags>] } ] }`]
    */
-  toJSON () {
+  toJSON() {
     const values = this._operations.map(e => {
       return {
         value: e.value,
         added: Array.from(e.added),
         removed: Array.from(e.removed),
-      }      
+      }
     })
     return { values: values }
   }
@@ -170,7 +186,7 @@ export default class CmRDTSet extends Set {
    * Create an Array of the values of this Set
    * @return {[Array]} [Values of this Set as an Array]
    */
-  toArray () {
+  toArray() {
     return Array.from(this.values())
   }
 
@@ -179,7 +195,7 @@ export default class CmRDTSet extends Set {
    * @param  {[type]}  other [Set to compare]
    * @return {Boolean}       [True if this Set is the same as the other Set]
    */
-  isEqual (other) {
+  isEqual(other) {
     return CmRDTSet.isEqual(this, other)
   }
 
@@ -199,7 +215,7 @@ export default class CmRDTSet extends Set {
    * @param  {[type]} compareFunc [Comparison function to compare elements with]
    * @return {[type]}             [true if element should be included in the current state]
    */
-  _resolveValueState (added, removed, compareFunc) {
+  _resolveValueState(added, removed, compareFunc) {
     // By default, if there's an add operation present,
     // and there are no remove operations, we include 
     // the value in the set
@@ -210,9 +226,9 @@ export default class CmRDTSet extends Set {
    * Add a value to the internal cache
    * @param {[OperationTuple3]} operationTuple3 [Tuple3(value, addedTags, removedTags)]
    */
-  _applyOperation (operationTuple3) {
+  _applyOperation(operationTuple3) {
     this._operations.push(operationTuple3)
-    this._values.add(operationTuple3.value)  
+    this._values.add(operationTuple3.value)
   }
 
   /**
@@ -228,7 +244,7 @@ export default class CmRDTSet extends Set {
    * @param  {[Any]} value [Value to find]
    * @return {[Any]}       [Value if found, undefined if value was not found]
    */
-  _findOperationsFor (value) {
+  _findOperationsFor(value) {
     let operations = []
     if (this._values.has(value)) {
       const isForValue = e => e.value === value
@@ -243,7 +259,7 @@ export default class CmRDTSet extends Set {
    * @param  {[Object]} json [Input object to create the Set from. Needs to be: '{ values: [] }']
    * @return {[Set]}         [new Set instance]
    */
-  static from (json) {
+  static from(json) {
     return new CmRDTSet(json.values)
   }
 
@@ -257,7 +273,7 @@ export default class CmRDTSet extends Set {
    * @param  {[Set]}  b [Set to compare]
    * @return {Boolean}  [True input Set are the same]
    */
-  static isEqual (a, b) {
+  static isEqual(a, b) {
     return (a.toArray().length === b.toArray().length)
       && a.hasAll(b.toArray())
   }
@@ -269,7 +285,7 @@ export default class CmRDTSet extends Set {
    * @param  {[Set]} b [Second Set]
    * @return {[Set]}   [Set of values that are in Set A but not in Set B]
    */
-  static difference (a, b) {
+  static difference(a, b) {
     const otherDoesntInclude = x => !b.has(x)
     const difference = new Set([...a.values()].filter(otherDoesntInclude))
     return difference

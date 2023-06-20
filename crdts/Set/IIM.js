@@ -1,9 +1,8 @@
-const fs = require('fs')
-const { execSync } = require('child_process')
+import { readFileSync } from 'fs'
+import { execSync } from 'child_process'
+import { custom_undo_check } from './app.js'
 
-CRDT = require('delta-crdts')
-set = CRDT('aworset')
-ars = set("s1")
+import * as CmRDTSet from '../src/CmRDT-Set.js'
 
 var is_undoing = false
 var prev_size
@@ -16,7 +15,7 @@ var labels = []
 var input_data = []
 
 function read_crdts(filename) {
-    var file = require(filename)
+    var file = JSON.parse(readFileSync(filename, 'utf8'))
     return file.crdts.filter((element) => element.crdt === "set")
 }
 
@@ -30,6 +29,7 @@ var no_op = crdts[0].no_op
 // console.log(crdts)
 // console.log(functions)
 // console.log(no_op)
+
 
 function generateUndoAction(funcName, param, undo_func) {
     if (Math.abs(prev_size - after_size) == 0) {
@@ -45,16 +45,17 @@ function generateUndoAction(funcName, param, undo_func) {
     }
 }
 
-function generate_patched() {
+export function generate_patched() {
     for (var func of functions) {
         var funcName = func.name
         var funcParam = func.param
         var undoFunc = func.rg
-        var patchedFunc = "var origfunc = ars." + funcName + "\n\
-        ars." + funcName + " = function (" + funcParam + ") {\n\
+        var patchedFunc = "var origfunc = CmRDTSet.default.prototype." + funcName + "\n\
+        CmRDTSet.default.prototype." + funcName + " = function (" + funcParam + ") {\n\
         console.log(\"calling proxied " + funcName + "\")\n\
+        prev_size = this." + no_op + "\n\
         origfunc.apply(this, [" + funcParam + "])\n\
-        after_size =  ars.value().size\n\
+        after_size =  this."+ no_op + "\n\
         if (is_undoing) {\n\
         generateUndoAction(" + "\"" + funcName + "\"" + ", " + funcParam + "," + "\"" + undoFunc + "\"" + ")\n\
         }\n\
@@ -63,32 +64,32 @@ function generate_patched() {
     }
 }
 
-function execute_patch() {
+export function execute_patch() {
     //console.log(funcs)
     funcs.forEach((func) => {
         eval(func)
     })
 }
 
-var undoable = function (funcs, custom_undo_check) {
+export var undoable = function (funcs, custom_undo_check, set) {
+    console.log("custom_undo_check "+ custom_undo_check)
     is_undoing = true
     funcs.forEach(f => {
-        prev_size = eval("ars." + no_op)
         f()
     })
     is_undoing = false
-    ars.value().forEach(v => numbers.push(v))
-    // console.log("ars size: " + ars.value().size)
+    set.values().forEach(v => numbers.push(v))
+    // console.log("set size: " + set.value().size)
     // console.log("lt size: " + crdts[0].lt_size)
     if (custom_undo_check) {
         console.log("undo is actuating depending on custom logic")
-        execute_undo(ars)
+        execute_undo(set)
         data.push(numbers)
         labels.push("true")
     } else if (after_size < crdts[0].lt_size) {
         if (undo_check()) {
             console.log("undo is actuating depending on metaData logic")
-            execute_undo(ars)
+            execute_undo(set)
             data.push(numbers)
             //console.log("inter "+ data)
             //console.log("inter2 "+ numbers)
@@ -103,7 +104,7 @@ var undoable = function (funcs, custom_undo_check) {
         input_data = numbers
         if (prob_undo_check()) {
             console.log("undo is actuating depending on prob model")
-            execute_undo(ars)
+            execute_undo(set)
             data.push(numbers)
             labels.push("true")
         } else {
@@ -117,6 +118,7 @@ var undoable = function (funcs, custom_undo_check) {
     operations_history.length = 0
 }
 
+
 function undo_check() {
     var file = crdts[0].stat + ".py"
     var threshold = crdts[0].max
@@ -129,6 +131,7 @@ function undo_check() {
 }
 
 function execute_undo(c) {
+    // console.log(operations_history)
     while (operations_history.length > 0) {
         const [opName, revVal] = operations_history.pop()
 
@@ -136,12 +139,6 @@ function execute_undo(c) {
         else { c.remove(revVal) }
 
     }
-}
-
-module.exports = {
-    generate_patched,
-    execute_patch,
-    undoable
 }
 
 
@@ -164,7 +161,7 @@ function prob_undo_check() {
         const res = result.toString().trim().slice(1, -1)
         // console.log(res.length)
         console.log(res)
-        return res > 0.5 ? true : false
+        return res > 0.01 ? true : false
     } catch (error) {
         console.error(error);
     }
