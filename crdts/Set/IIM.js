@@ -161,7 +161,7 @@ function prob_undo_check() {
         const res = result.toString().trim().slice(1, -1)
         // console.log(res.length)
         console.log(res)
-        return res > 0.01 ? true : false
+        return res > 0.1 ? true : false
     } catch (error) {
         console.error(error);
     }

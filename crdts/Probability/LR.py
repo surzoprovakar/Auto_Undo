@@ -7,6 +7,8 @@ import argparse
 model = LogisticRegression()
 
 def prob_val_lr(data, labels, input_data):
+    data = np.array([sorted(row) for row in data], dtype=object)
+    input_data = np.sort(input_data)
 
     max_len = max(len(sublist) for sublist in data)
     if max_len < len(input_data[0]):
