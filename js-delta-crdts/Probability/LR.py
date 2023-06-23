@@ -4,10 +4,11 @@ import sys
 import json
 import argparse
 
-model = LogisticRegression()
+model = LogisticRegression(solver='lbfgs', max_iter=10000)
 
 def prob_val_lr(data, labels, input_data):
-    data = np.array([sorted(row) for row in data], dtype=object)
+    data_without_none = [[value for value in row if value is not None] for row in data]
+    data = np.array([sorted(row) for row in data_without_none], dtype=object)
     input_data = np.sort(input_data)
 
     max_len = max(len(sublist) for sublist in data)
