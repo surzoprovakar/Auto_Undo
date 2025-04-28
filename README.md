@@ -37,8 +37,8 @@ This project proposes an automatic, minimally intrusive solution that improves d
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/surzoprovakar/Undo_Script.git
-   cd Undo_Script
+   git clone https://github.com/surzoprovakar/Auto_Undo.git
+   cd Auto_Undo
 
 ## Publication
 
